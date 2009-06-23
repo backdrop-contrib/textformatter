@@ -139,7 +139,7 @@ function theme_textformatter_formatter_text_comma_and_period($element) {
     }
   }
 
-  return $phrase.".";
+  return ($phrase) ? $phrase."." : $phrase;
 }
 
 /**
