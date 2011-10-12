@@ -1,5 +1,8 @@
-name = Text Formatter
-description = Provides a formatter for CCK text fields to render multi-value fields.
-dependencies[] = text
-package = CCK
-core = 6.x
+name = Field Text Formatter
+description = "A field formatter for rendering values as HTML or comma-separated lists."
+package = Fields
+core = 7.x
+
+files[] = textformatter.module
+
+dependencies[] = field

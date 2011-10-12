@@ -1,23 +1,28 @@
-; $Id $
 ABOUT
 
-This module provides an additional formatter for CCK text fields to render a
-multi-value text field as a list rather than as a vertical list of values.
+This module provides an additional formatter to render values in text, long
+text, number, and list fields as HTML or comma-separated lists.
+
+For multi-value fields, each field value becomes a list item. For long text
+fields, each line becomes a list item.
 
 REQUIREMENTS
 
-- Drupal 6.x
-- text module
+- Drupal 7.x
+- Drupal core's Field module
 
 CONFIGURATION
 
-There is no configuration for this module.  You may set it just as you would any
-other CCK formatter on the Display fields tab.
+There is no special configuration for this module.  You may configure it just as
+you would any other field formatter on the "Manage display" tab.
 
 AUTHOR AND CREDIT
 
-Authors and Maintainers:
+This module was developed for Drupal 6 by:
 Larry Garfield & Emily Brand
 http://www.palantir.net/
+
+The Drupal 7 version initiated by:
+damiankloip
 
 This module was initially developed by Palantir.net.
