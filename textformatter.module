@@ -157,10 +157,8 @@ function textformatter_field_formatter_settings_summary($field, $instance, $view
 function textformatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $settings = $display['settings'];
   $element = array();
-
   if ($display['type'] == 'textformatter_list') {
     $list_items = array();
-
     // For long text fields, use each line as a list item, removing empty lines.
     if ($field['type'] == 'text_long') {
       foreach ($items as $delta => $item) {
@@ -168,6 +166,14 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
         foreach ($long_text_items as $item_key => $long_text_item) {
           // @see _text_sanitize(), text.module
           $list_items[] = ($instance['settings']['text_processing'] ? check_markup($item['value'], $item['format'], $langcode) : check_plain($item['value']));
+        }
+      }
+    }
+    if ($field['module'] == 'list') {
+      $allowed_values = list_allowed_values($field);
+      foreach ($items as $delta => $item) {
+        if (isset($allowed_values[$item['value']])) {
+          $list_items[$delta] = field_filter_xss($allowed_values[$item['value']]);
         }
       }
     }
@@ -192,7 +198,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
         //Render elements as one piece of markup and theme as item list.
         $element[0] = array(
           '#theme' => 'item_list',
-          '#type' => $list_type,
+          '#type' => $settings['textformatter_type'],
           '#items' => $list_items,
           '#attributes' => array('class' => $classes),
         );
