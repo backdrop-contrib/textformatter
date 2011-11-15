@@ -12,7 +12,7 @@ function textformatter_field_formatter_info() {
   return array(
     'textformatter_list' => array(
       'label' => t("List"),
-      'field types' => array('text', 'text_long', 'number_integer', 'number_decimal', 'number_float', 'list_float', 'list_integer', 'list_text'),
+      'field types' => array('text', 'text_long', 'number_integer', 'number_decimal', 'number_float', 'list_float', 'list_integer', 'list_text', 'taxonomy_term_reference'),
       'settings' => array(
         'textformatter_type' => 'ul',
         'textformatter_class' => 'textformatter-list',
@@ -177,6 +177,17 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
         }
       }
     }
+    elseif ($field['module'] == 'taxonomy') {
+      $tids = array();
+      foreach ($items as $item) { 
+      	$tids[] = $item['tid']; 
+      }
+      $terms = taxonomy_term_load_multiple($tids);
+
+      foreach ($items as $delta => $item) {
+        $list_items[$delta] = l($terms[$item['tid']]->name, 'taxonomy/term/'. $item['tid']);
+      }
+    }
     else {
       foreach ($items as $delta => $item) {
         $list_items[$delta] = check_plain($item['value']);
@@ -240,13 +251,13 @@ function theme_textformatter_comma($variables) {
   $tag = $variables['element']['#comma_tag'];
 
   // Optionally prefix the last item with 'and'.
+  $last = '';
   if ($and && count($items) > 1) {
-    $last = array_pop($items);
-    array_push($items, t('and') . ' ' . $last);
+    $last = ' ' . t('and') . ' ' . array_pop($items);
   }
 
   // Generate a comma-separated list.
-  $output = implode(', ', $items);
+  $output = implode(', ', $items) . $last;
 
   // Optionally follow the list with a '.'.
   if ($full_stop) {
