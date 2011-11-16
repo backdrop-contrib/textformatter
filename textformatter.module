@@ -4,6 +4,28 @@
  * @file
  * Provide a field formatter to render values as HTML or comma-separated lists.
  */
+ 
+/**
+ * Implements hook_help().
+ */
+function textformatter_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#textformatter' :
+      $output =  '<p>' . t("The text formatter module provides a new display formatter that can 
+        be used on any text, number, list, or taxonomy fields.") . '</p>'; 
+      $output .= '<p>' . t("Go to 'Manage display' for your entity field display settings and 
+        select 'List' as the formatter. Various options will then be available to either format 
+        your field values as an html list or comma separated list.") . '</p>';
+      $output .= '<p>' . t("This would be mostly implemented with multi value fields. 
+        E.g. A text field could be created with unlimited values. Each value will then be added to 
+        the same html list. Taxonomy terms will work with comma separated auto complete lists too, 
+        to give the same result. The only exceptions are textarea field, lists can be created based 
+        on each line of the input.") . '</p>';
+
+    return $output;
+  }
+
+}
 
 /**
  * Implements hook_field_formatter_info().
@@ -157,6 +179,7 @@ function textformatter_field_formatter_settings_summary($field, $instance, $view
 function textformatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $settings = $display['settings'];
   $element = array();
+
   if ($display['type'] == 'textformatter_list') {
     $list_items = array();
     // For long text fields, use each line as a list item, removing empty lines.
@@ -180,12 +203,12 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
     elseif ($field['module'] == 'taxonomy') {
       $tids = array();
       foreach ($items as $item) { 
-      	$tids[] = $item['tid']; 
+        $tids[] = $item['tid']; 
       }
       $terms = taxonomy_term_load_multiple($tids);
 
       foreach ($items as $delta => $item) {
-        $list_items[$delta] = l($terms[$item['tid']]->name, 'taxonomy/term/'. $item['tid']);
+        $list_items[$delta] = l($terms[$item['tid']]->name, 'taxonomy/term/' . $item['tid']);
       }
     }
     else {
@@ -206,7 +229,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
     switch ($settings['textformatter_type']) {
       case 'ul':
       case 'ol':
-        //Render elements as one piece of markup and theme as item list.
+        // Render elements as one piece of markup and theme as item list.
         $element[0] = array(
           '#theme' => 'item_list',
           '#type' => $settings['textformatter_type'],
@@ -215,6 +238,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
         );
       break;
       case 'comma':
+        // Render as one element as comma separated list.
         $element[0] = array(
           '#theme' => 'textformatter_comma',
           '#items' => $list_items,
