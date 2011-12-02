@@ -186,13 +186,13 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
     if ($field['type'] == 'text_long') {
       foreach ($items as $delta => $item) {
         $long_text_items = array_filter(array_map('trim', explode("\n", $item['value'])));
-        foreach ($long_text_items as $item_key => $long_text_item) {
+        foreach ($long_text_items as $long_text_item) {
           // @see _text_sanitize(), text.module
-          $list_items[] = ($instance['settings']['text_processing'] ? check_markup($item['value'], $item['format'], $langcode) : check_plain($item['value']));
+          $list_items[] = ($instance['settings']['text_processing'] ? check_markup($long_text_item, $item['format'], $langcode) : check_plain($long_text_item));
         }
       }
     }
-    if ($field['module'] == 'list') {
+    elseif ($field['module'] == 'list') {
       $allowed_values = list_allowed_values($field);
       foreach ($items as $delta => $item) {
         if (isset($allowed_values[$item['value']])) {
