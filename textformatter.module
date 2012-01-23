@@ -34,13 +34,14 @@ function textformatter_field_formatter_info() {
   return array(
     'textformatter_list' => array(
       'label' => t("List"),
-      'field types' => array('text', 'text_long', 'number_integer', 'number_decimal', 'number_float', 'list_float', 'list_integer', 'list_text', 'taxonomy_term_reference'),
+      'field types' => _textformatter_field_types(),
       'settings' => array(
         'textformatter_type' => 'ul',
         'textformatter_class' => 'textformatter-list',
         'textformatter_comma_full_stop' => 0,
         'textformatter_comma_and' => 0,
         'textformatter_comma_tag' => 'div',
+        'textformatter_term_plain' => 0,
       ),
     ),
   );
@@ -120,6 +121,15 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#element_validate' => array('_textformatter_validate_class'),
     );
   }
+  
+  // Taxonomy term ref fields only.
+  if ($field['type'] == 'taxonomy_term_reference') {
+    $form['textformatter_term_plain'] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Display taxonomy terms as plain text (Not term links)."),
+      '#default_value' => $settings['textformatter_term_plain'],
+    );
+  }
 
   return $form;
 }
@@ -166,7 +176,6 @@ function textformatter_field_formatter_settings_summary($field, $instance, $view
     if ($settings['textformatter_class']) {
       $summary[] = t("CSS Class") . ': <em>' . check_plain($settings['textformatter_class']) . '</em>';
     }
-
     $summary = theme('item_list', array('type' => 'ul', 'items' => $summary));
   }
 
@@ -185,6 +194,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
     // For long text fields, use each line as a list item, removing empty lines.
     if ($field['type'] == 'text_long') {
       foreach ($items as $delta => $item) {
+        // Explode on new line char, trim whitespace (if any), then array filter (So any empty lines will actually be removed).
         $long_text_items = array_filter(array_map('trim', explode("\n", $item['value'])));
         foreach ($long_text_items as $long_text_item) {
           // @see _text_sanitize(), text.module
@@ -208,7 +218,13 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
       $terms = taxonomy_term_load_multiple($tids);
 
       foreach ($items as $delta => $item) {
-        $list_items[$delta] = l($terms[$item['tid']]->name, 'taxonomy/term/' . $item['tid']);
+        // Check if we should display as term links or not.
+        if ($settings['textformatter_term_plain']) {
+          $list_items[$delta] = check_plain($terms[$item['tid']]->name);
+        }
+        else {
+          $list_items[$delta] = l($terms[$item['tid']]->name, 'taxonomy/term/' . $item['tid']);
+        }
       }
     }
     else {
@@ -295,4 +311,21 @@ function theme_textformatter_comma($variables) {
   }
 
   return $output;
+}
+
+/**
+ * Helper to return array of field types that textformatter display formatter can be used on.
+ */
+function _textformatter_field_types() {
+  return array(
+    'text',
+    'text_long',
+    'number_integer',
+    'number_decimal',
+    'number_float',
+    'list_float',
+    'list_integer', 
+    'list_text',
+    'taxonomy_term_reference',
+  );
 }
