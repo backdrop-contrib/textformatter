@@ -42,6 +42,10 @@ function textformatter_field_formatter_info() {
         'textformatter_comma_and' => 0,
         'textformatter_comma_tag' => 'div',
         'textformatter_term_plain' => 0,
+        'textformatter_comma_override' => 0,
+        'textformatter_separator_custom' => '',
+        'textformatter_separator_custom_tag' => 'span',
+        'textformatter_separator_custom_class' => 'textformatter-separator',
       ),
     ),
   );
@@ -53,7 +57,6 @@ function textformatter_field_formatter_info() {
 function textformatter_field_formatter_settings_form($field, $instance, $view_mode, $form, &$form_state) {
   $display = $instance['display'][$view_mode];
   $settings = $display['settings'];
-
   $form = array();
 
   if ($display['type'] == 'textformatter_list') {
@@ -75,6 +78,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => FALSE),
         ),
       ),
     );
@@ -85,25 +89,78 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => FALSE),
         ),
       ),
     );
+
+    //Override Comma with custom separator.
+    $form['textformatter_comma_override'] = array(
+      '#type' => 'checkbox',
+      '#title' => t("Override comma separator with custom."),
+      '#description' => t("Something here…."),
+      '#default_value' => $settings['textformatter_comma_override'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
+        ),
+      ),
+    );
+
+/*
+    $form['custom_separator'] = array(
+      '#type' => 'fieldset',
+      '#tree' => FALSE,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+*/
+    $form['textformatter_separator_custom'] = array(
+      '#type' => 'textfield',
+      '#title' => t("Custom separator"),
+      '#description' => t("Description here."),
+      '#size' => 40,
+      '#default_value' => $settings['textformatter_separator_custom'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+    $form['textformatter_separator_custom_tag'] = array(
+      '#type' => 'select',
+      '#title' => t("separator HTML wrapper"),
+      '#description' => t("An HTML tag to wrap the separator in."),
+      '#options' => _textformatter_wrapper_options(),
+      '#default_value' => $settings['textformatter_separator_custom_tag'],
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+    $form['textformatter_separator_custom_class'] = array(
+      '#title' => t("Separator classes"),
+      '#type' => 'textfield',
+      //'#size' => 40,
+      '#description' => t("A CSS class to use in the wrapper tag for the separator."),
+      '#default_value' => $settings['textformatter_separator_custom_class'],
+      '#element_validate' => array('_textformatter_validate_class'),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => TRUE),
+        ),
+      ),
+    );
+
     $form['textformatter_comma_tag'] = array(
       '#type' => 'select',
       '#title' => t("HTML wrapper"),
       '#description' => t("An HTML tag to wrap the list in. The CSS class below will be added to this tag."),
-      '#options' => array(
-        t('No HTML tag'),
-        'div' => t('Div'),
-        'span' => t('Span'),
-        'p' => t('Paragraph'),
-        'h1' => t('Header 1'),
-        'h2' => t('Header 2'),
-        'h3' => t('Header 3'),
-        'h4' => t('Header 4'),
-        'h5' => t('Header 5'),
-        'h6' => t('Header 6'),
-      ),
+      '#options' => _textformatter_wrapper_options(),
       '#default_value' => $settings['textformatter_comma_tag'],
       '#states' => array(
         'visible' => array(
@@ -175,6 +232,9 @@ function textformatter_field_formatter_settings_summary($field, $instance, $view
 
     if ($settings['textformatter_class']) {
       $summary[] = t("CSS Class") . ': <em>' . check_plain($settings['textformatter_class']) . '</em>';
+    }
+    if ($settings['textformatter_comma_override']) {
+      $summary[] = '<em>*' . t("Comma separator overridden") . '*</em>';
     }
     $summary = theme('item_list', array('type' => 'ul', 'items' => $summary));
   }
@@ -258,9 +318,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
         $element[0] = array(
           '#theme' => 'textformatter_comma',
           '#items' => $list_items,
-          '#full_stop' => $settings['textformatter_comma_full_stop'],
-          '#comma_and' => $settings['textformatter_comma_and'],
-          '#comma_tag' => $settings['textformatter_comma_tag'],
+          '#settings' => $settings,
           '#attributes' => array('class' => $classes),
         );
       break;
@@ -286,27 +344,35 @@ function textformatter_theme($existing, $type, $theme, $path) {
  */
 function theme_textformatter_comma($variables) {
   $items = $variables['element']['#items'];
-  $and = $variables['element']['#comma_and'];
-  $full_stop = $variables['element']['#full_stop'];
-  $tag = $variables['element']['#comma_tag'];
+  $settings = $variables['element']['#settings'];
+  $attributes = drupal_attributes($variables['element']['#attributes']);
 
   // Optionally prefix the last item with 'and'.
   $last = '';
-  if ($and && count($items) > 1) {
+  if ($settings['textformatter_comma_and'] && (count($items) > 1) && !$settings['textformatter_comma_override']) {
     $last = ' ' . t('and') . ' ' . array_pop($items);
   }
-
+  
+  // Default comma separator.
+  $separator = ', ';
+  //Override if we need to.
+  if ($settings['textformatter_comma_override']) {
+    $sep = check_plain($settings['textformatter_separator_custom']);
+    $tag = $settings['textformatter_separator_custom_tag'];
+    $class = $settings['textformatter_separator_custom_class'];
+    $separator = "<$tag class=\"$class\">$sep</$tag>";
+  }
   // Generate a comma-separated list.
-  $output = implode(', ', $items) . $last;
+  $output = implode($separator, $items) . $last;
 
   // Optionally follow the list with a '.'.
-  if ($full_stop) {
-    $output .= '.';
+  if ($settings['textformatter_comma_full_stop']) {
+    $output .= '<span class="textformatter-fullstop">.</span>';
   }
 
   // Optionally wrap the list in an HTML tag.
+  $tag = $settings['textformatter_comma_tag'];
   if ($tag) {
-    $attributes = drupal_attributes($variables['element']['#attributes']);
     $output = "<$tag$attributes>$output</$tag>";
   }
 
@@ -327,5 +393,23 @@ function _textformatter_field_types() {
     'list_integer', 
     'list_text',
     'taxonomy_term_reference',
+  );
+}
+
+/**
+ * Helper to return an array of html tags, formatted for a select list.
+ */
+function _textformatter_wrapper_options() {
+  return array(
+    t('No HTML tag'),
+    'div' => t('Div'),
+    'span' => t('Span'),
+    'p' => t('Paragraph'),
+    'h1' => t('Header 1'),
+    'h2' => t('Header 2'),
+    'h3' => t('Header 3'),
+    'h4' => t('Header 4'),
+    'h5' => t('Header 5'),
+    'h6' => t('Header 6'),
   );
 }
