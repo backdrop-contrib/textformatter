@@ -3,6 +3,4 @@ description = "A field formatter for rendering values as HTML or comma-separated
 package = Fields
 core = 7.x
 
-files[] = textformatter.module
-
 dependencies[] = field

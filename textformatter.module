@@ -234,46 +234,18 @@ function textformatter_field_formatter_settings_summary($field, $instance, $view
  * Implements hook_field_formatter_view().
  */
 function textformatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $settings = $display['settings'];
-  $element = array();
-
   if ($display['type'] == 'textformatter_list') {
-    $list_items = array();
-    // For long text fields, use each line as a list item, removing empty lines.
-    if ($field['type'] == 'text_long') {
-      foreach ($items as $delta => $item) {
-        // Explode on new line char, trim whitespace (if any), then array filter (So any empty lines will actually be removed).
-        $long_text_items = array_filter(array_map('trim', explode("\n", $item['value'])));
-        foreach ($long_text_items as $long_text_item) {
-          // @see _text_sanitize(), text.module
-          $list_items[] = ($instance['settings']['text_processing'] ? check_markup($long_text_item, $item['format'], $langcode) : check_plain($long_text_item));
-        }
-      }
-    }
-    elseif ($field['module'] == 'list') {
-      $allowed_values = list_allowed_values($field);
-      foreach ($items as $delta => $item) {
-        if (isset($allowed_values[$item['value']])) {
-          $list_items[$delta] = field_filter_xss($allowed_values[$item['value']]);
-        }
-      }
-    }
-    elseif ($field['module'] == 'taxonomy') {
-      $tids = array();
-      foreach ($items as $item) { 
-        $tids[] = $item['tid']; 
-      }
-      $terms = taxonomy_term_load_multiple($tids);
 
-      foreach ($items as $delta => $item) {
-        // Check if we should display as term links or not.
-        if ($settings['textformatter_term_plain']) {
-          $list_items[$delta] = check_plain($terms[$item['tid']]->name);
-        }
-        else {
-          $list_items[$delta] = l($terms[$item['tid']]->name, 'taxonomy/term/' . $item['tid']);
-        }
-      }
+    $settings = $display['settings'];
+    $element = array();
+
+    $textformatters = module_invoke_all('textformatter_field_info');
+    $module = $field['module'];
+    $list_items = array();
+
+    if (isset($textformatters[$module]) && in_array($field['type'], $textformatters[$module]['fields'])) {
+      $function = $textformatters[$module]['callback'];
+      $list_items = $function($items, $field, $display, $settings);
     }
     else {
       foreach ($items as $delta => $item) {
@@ -371,17 +343,119 @@ function theme_textformatter_comma($variables) {
  * Helper to return array of field types that textformatter display formatter can be used on.
  */
 function _textformatter_field_types() {
-  return array(
-    'text',
-    'text_long',
-    'number_integer',
-    'number_decimal',
-    'number_float',
-    'list_float',
-    'list_integer', 
-    'list_text',
-    'taxonomy_term_reference',
+  // Invoke hook_textformatter_field_info
+  $hooks = module_invoke_all('textformatter_field_info');
+  $fields = array();
+
+  // Create array of all field types.
+  foreach ($hooks as $module => $info) {
+    foreach ($info['fields'] as $field) {
+      $fields[] = $field;
+    }
+  }
+
+  return $fields;
+}
+
+/**
+ * Implements hook_textformatter_field_info().
+ */
+function textformatter_textformatter_field_info() {
+  $fields = array();
+
+  $fields['text'] = array(
+    'fields' => array('text', 'text_long'),
+    'callback' => 'textformatter_text_field_create_list',
   );
+  $fields['number'] = array(
+    'fields' => array('number_integer', 'number_decimal', 'number_float'),
+    'callback' => 'textformatter_default_field_create_list',
+  );
+  $fields['list'] = array(
+    'fields' => array('list_float', 'list_integer', 'list_text'),
+    'callback' => 'textformatter_list_field_create_list',
+  );
+  $fields['taxonomy'] = array(
+    'fields' => array('taxonomy_term_reference'),
+    'callback' => 'textformatter_taxonomy_field_create_list',
+  );  
+
+  return $fields;
+}
+
+/**
+ * Default listing.
+ */
+function textformatter_default_field_create_list($items, $field, $display, $settings) {
+  $list_items = array();
+
+  foreach ($items as $delta => $item) {
+    $list_items[$delta] = check_plain($item['value']);
+  }
+
+  return $list_items;
+}
+
+/**
+ * Create list for text fields.
+ */
+function textformatter_text_field_create_list($items, $field, $display, $settings) {
+  if ($field['type'] == 'text_long') {
+    foreach ($items as $delta => $item) {
+      // Explode on new line char, trim whitespace (if any), then array filter (So any empty lines will actually be removed).
+      $long_text_items = array_filter(array_map('trim', explode("\n", $item['value'])));
+      foreach ($long_text_items as $long_text_item) {
+        // @see _text_sanitize(), text.module
+        $list_items[] = ($instance['settings']['text_processing'] ? check_markup($long_text_item, $item['format'], $langcode) : check_plain($long_text_item));
+      }
+    }
+  }
+  else {
+    $list_items = textformatter_default_field_create_list($items, $field, $display, $settings);
+  }
+
+  return $list_items;
+}
+
+/**
+ * Create list for list fields.
+ */
+function textformatter_list_field_create_list($items, $field, $display, $settings) {
+  $list_items = array();
+
+  $allowed_values = list_allowed_values($field);
+  foreach ($items as $delta => $item) {
+    if (isset($allowed_values[$item['value']])) {
+      $list_items[$delta] = field_filter_xss($allowed_values[$item['value']]);
+    }
+  }
+
+  return $list_items;
+}
+
+/**
+ * Create list for taxonomy reference fields.
+ */
+function textformatter_taxonomy_field_create_list($items, $field, $display, $settings) {
+  $list_items = array();
+
+  $tids = array();
+  foreach ($items as $item) { 
+    $tids[] = $item['tid']; 
+  }
+  $terms = taxonomy_term_load_multiple($tids);
+
+  foreach ($items as $delta => $item) {
+    // Check if we should display as term links or not.
+    if ($settings['textformatter_term_plain']) {
+      $list_items[$delta] = check_plain($terms[$item['tid']]->name);
+    }
+    else {
+      $list_items[$delta] = l($terms[$item['tid']]->name, 'taxonomy/term/' . $item['tid']);
+    }
+  }
+
+  return $list_items;
 }
 
 /**
