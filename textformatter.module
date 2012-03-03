@@ -239,7 +239,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
     $settings = $display['settings'];
     $element = array();
 
-    $textformatters = module_invoke_all('textformatter_field_info');
+    $textformatters = textformatter_field_list_info();
     $module = $field['module'];
     $list_items = array();
 
@@ -249,7 +249,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
     }
     else {
       foreach ($items as $delta => $item) {
-        $list_items[$delta] = check_plain($item['value']);
+        $list_items = textformatter_default_field_create_list($items, $field, $display, $settings);
       }
     }
 
@@ -340,47 +340,43 @@ function theme_textformatter_comma($variables) {
 }
 
 /**
- * Helper to return array of field types that textformatter display formatter can be used on.
+ * Wrapper function for invoking hook_textformatter_field_list_info.
+ * statically caches $info as this could get called multiple times
+ * for different fields using this formatter.
  */
-function _textformatter_field_types() {
-  // Invoke hook_textformatter_field_info
-  $hooks = module_invoke_all('textformatter_field_info');
-  $fields = array();
-
-  // Create array of all field types.
-  foreach ($hooks as $module => $info) {
-    foreach ($info['fields'] as $field) {
-      $fields[] = $field;
-    }
+function textformatter_field_list_info() {
+  $info = &drupal_static(__FUNCTION__);
+  if (empty($info)) {
+    $info = module_invoke_all('textformatter_field_list_info');
   }
 
-  return $fields;
+  return $info;
 }
 
 /**
  * Implements hook_textformatter_field_info().
  */
-function textformatter_textformatter_field_info() {
-  $fields = array();
+function textformatter_textformatter_field_list_info() {
+  $info = array();
 
-  $fields['text'] = array(
+  $info['text'] = array(
     'fields' => array('text', 'text_long'),
     'callback' => 'textformatter_text_field_create_list',
   );
-  $fields['number'] = array(
+  $info['number'] = array(
     'fields' => array('number_integer', 'number_decimal', 'number_float'),
     'callback' => 'textformatter_default_field_create_list',
   );
-  $fields['list'] = array(
+  $info['list'] = array(
     'fields' => array('list_float', 'list_integer', 'list_text'),
     'callback' => 'textformatter_list_field_create_list',
   );
-  $fields['taxonomy'] = array(
+  $info['taxonomy'] = array(
     'fields' => array('taxonomy_term_reference'),
     'callback' => 'textformatter_taxonomy_field_create_list',
-  );  
+  );
 
-  return $fields;
+  return $info;
 }
 
 /**
@@ -400,6 +396,8 @@ function textformatter_default_field_create_list($items, $field, $display, $sett
  * Create list for text fields.
  */
 function textformatter_text_field_create_list($items, $field, $display, $settings) {
+  $list_items = array();
+
   if ($field['type'] == 'text_long') {
     foreach ($items as $delta => $item) {
       // Explode on new line char, trim whitespace (if any), then array filter (So any empty lines will actually be removed).
@@ -456,6 +454,24 @@ function textformatter_taxonomy_field_create_list($items, $field, $display, $set
   }
 
   return $list_items;
+}
+
+/**
+ * Helper to return array of field types that textformatter display formatter can be used on.
+ */
+function _textformatter_field_types() {
+  // Invokes hook_textformatter_field_info
+  $field_info = textformatter_field_list_info();
+  $fields = array();
+
+  // Create array of all field types.
+  foreach ($field_info as $module => $info) {
+    foreach ($info['fields'] as $field) {
+      $fields[] = $field;
+    }
+  }
+
+  return $fields;
 }
 
 /**
