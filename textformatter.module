@@ -235,21 +235,19 @@ function textformatter_field_formatter_settings_summary($field, $instance, $view
  */
 function textformatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   if ($display['type'] == 'textformatter_list') {
-
     $settings = $display['settings'];
     $element = array();
-
     $textformatters = textformatter_field_list_info();
     $module = $field['module'];
     $list_items = array();
 
     if (isset($textformatters[$module]) && in_array($field['type'], $textformatters[$module]['fields'])) {
       $function = $textformatters[$module]['callback'];
-      $list_items = $function($items, $field, $display, $settings);
+      $list_items = $function($entity_type, $entity, $field, $instance, $langcode, $items, $display);
     }
     else {
       foreach ($items as $delta => $item) {
-        $list_items = textformatter_default_field_create_list($items, $field, $display, $settings);
+        $list_items = textformatter_default_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display);
       }
     }
 
@@ -348,6 +346,7 @@ function textformatter_field_list_info() {
   $info = &drupal_static(__FUNCTION__);
   if (empty($info)) {
     $info = module_invoke_all('textformatter_field_list_info');
+    drupal_alter('textformatter_field_list_info', $info);
   }
 
   return $info;
@@ -382,7 +381,7 @@ function textformatter_textformatter_field_list_info() {
 /**
  * Default listing callback.
  */
-function textformatter_default_field_create_list($items, $field, $display, $settings) {
+function textformatter_default_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $list_items = array();
 
   foreach ($items as $delta => $item) {
@@ -395,7 +394,8 @@ function textformatter_default_field_create_list($items, $field, $display, $sett
 /**
  * Create list for text fields.
  */
-function textformatter_text_field_create_list($items, $field, $display, $settings) {
+function textformatter_text_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
   $list_items = array();
 
   if ($field['type'] == 'text_long') {
@@ -420,7 +420,8 @@ function textformatter_text_field_create_list($items, $field, $display, $setting
 /**
  * Create list for list fields.
  */
-function textformatter_list_field_create_list($items, $field, $display, $settings) {
+function textformatter_list_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
   $list_items = array();
 
   $allowed_values = list_allowed_values($field);
@@ -436,7 +437,8 @@ function textformatter_list_field_create_list($items, $field, $display, $setting
 /**
  * Create list for taxonomy reference fields.
  */
-function textformatter_taxonomy_field_create_list($items, $field, $display, $settings) {
+function textformatter_taxonomy_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $settings = $display['settings'];
   $list_items = array();
 
   $tids = array();

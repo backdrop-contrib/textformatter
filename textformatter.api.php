@@ -21,7 +21,7 @@ function hook_textformatter_field_list_info() {
  * Sample callback implementation.
  * @see textformatter_default_field_create_list.
  */
-function textformatter_example_field_create_list($items, $field, $display, $settings) {
+function textformatter_example_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $list_items = array();
 
   foreach ($items as $delta => $item) {
@@ -29,4 +29,16 @@ function textformatter_example_field_create_list($items, $field, $display, $sett
   }
 
   return $list_items;
+}
+
+/**
+ * hook_textformatter_field_list_info_alter().
+ *
+ * @param $info
+ *  An array of info as declared by hook_textformatter_field_list_info() to alter
+ *  passed by reference.
+ */
+function hook_textformatter_field_list_info_alter(&$info) {
+  // Change the callback used for fields from the text module.
+  $info['text']['callback'] = 'textformatter_example_text_callback';
 }
