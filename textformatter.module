@@ -380,7 +380,7 @@ function textformatter_textformatter_field_list_info() {
 }
 
 /**
- * Default listing.
+ * Default listing callback.
  */
 function textformatter_default_field_create_list($items, $field, $display, $settings) {
   $list_items = array();
@@ -409,7 +409,9 @@ function textformatter_text_field_create_list($items, $field, $display, $setting
     }
   }
   else {
-    $list_items = textformatter_default_field_create_list($items, $field, $display, $settings);
+    foreach ($items as $delta => $item) {
+      $list_items[] = ($instance['settings']['text_processing'] ? check_markup($item, $item['format'], $langcode) : check_plain($item));
+    }
   }
 
   return $list_items;
