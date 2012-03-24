@@ -397,7 +397,6 @@ function textformatter_default_field_create_list($entity_type, $entity, $field, 
 function textformatter_text_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $settings = $display['settings'];
   $list_items = array();
-
   if ($field['type'] == 'text_long') {
     foreach ($items as $delta => $item) {
       // Explode on new line char, trim whitespace (if any), then array filter (So any empty lines will actually be removed).
@@ -410,7 +409,7 @@ function textformatter_text_field_create_list($entity_type, $entity, $field, $in
   }
   else {
     foreach ($items as $delta => $item) {
-      $list_items[] = ($instance['settings']['text_processing'] ? check_markup($item, $item['format'], $langcode) : check_plain($item));
+      $list_items[] = ($item['format'] ? check_markup($item['value'], $item['format'], $langcode) : check_plain($item['value']));
     }
   }
 
