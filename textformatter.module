@@ -454,7 +454,8 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
       $list_items[$delta] = check_plain($terms[$item['tid']]->name);
     }
     else {
-      $list_items[$delta] = l($terms[$item['tid']]->name, 'taxonomy/term/' . $item['tid']);
+      $uri = entity_uri('taxonomy_term', $terms[$item['tid']]);
+      $list_items[$delta] = l($terms[$item['tid']]->name, $uri['path']);
     }
   }
 
