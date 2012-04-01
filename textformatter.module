@@ -383,9 +383,10 @@ function textformatter_textformatter_field_list_info() {
  */
 function textformatter_default_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $list_items = array();
+  $value_key = _textformatter_get_field_value_key($field);
 
   foreach ($items as $delta => $item) {
-    $list_items[$delta] = check_plain($item['value']);
+    $list_items[$delta] = check_plain($item[$value_key]);
   }
 
   return $list_items;
@@ -397,19 +398,20 @@ function textformatter_default_field_create_list($entity_type, $entity, $field, 
 function textformatter_text_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $settings = $display['settings'];
   $list_items = array();
+
   if ($field['type'] == 'text_long') {
     foreach ($items as $delta => $item) {
       // Explode on new line char, trim whitespace (if any), then array filter (So any empty lines will actually be removed).
       $long_text_items = array_filter(array_map('trim', explode("\n", $item['value'])));
       foreach ($long_text_items as $long_text_item) {
         // @see _text_sanitize(), text.module
-        $list_items[] = ($instance['settings']['text_processing'] ? check_markup($long_text_item, $item['format'], $langcode) : check_plain($long_text_item));
+        $list_items[] = ($instance['settings']['text_processing'] ? check_markup($long_text_item, $item['format'], $langcode) : field_filter_xss($long_text_item));
       }
     }
   }
   else {
     foreach ($items as $delta => $item) {
-      $list_items[] = ($item['format'] ? check_markup($item['value'], $item['format'], $langcode) : check_plain($item['value']));
+      $list_items[] = ($item['format'] ? check_markup($item['value'], $item['format'], $langcode) : field_filter_xss($item['value']));
     }
   }
 
@@ -464,17 +466,30 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
  */
 function _textformatter_field_types() {
   // Invokes hook_textformatter_field_info
-  $field_info = textformatter_field_list_info();
+  $textformatter_info = textformatter_field_list_info();
   $fields = array();
 
   // Create array of all field types.
-  foreach ($field_info as $module => $info) {
+  foreach ($textformatter_info as $module => $info) {
     foreach ($info['fields'] as $field) {
       $fields[] = $field;
     }
   }
 
   return $fields;
+}
+
+/**
+ * Helper to return the value key for a field instance.
+ *
+ * @param $field
+ *  The whole array of field instance info provided by the field api.
+ *
+ * @return
+ *  (string) value key for the field.
+ */
+function _textformatter_get_field_value_key(array $field) {
+  return (isset($field['columns']) && is_array($field['columns'])) ? key($field['columns']) : 'value';
 }
 
 /**
