@@ -46,6 +46,6 @@ function hook_textformatter_field_info_alter(&$info) {
 /**
  * hook_textformatter_field_formatter_settings_form_alter().
  */
-function textformatter_contrib_textformatter_field_formatter_settings_form_alter(&$form, &$form_state) {
+function hook_textformatter_field_formatter_settings_form_alter(&$form, &$form_state, $context) {
   // Sample form element here.
 }

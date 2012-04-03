@@ -46,6 +46,7 @@ function textformatter_field_formatter_info() {
         'textformatter_separator_custom' => '',
         'textformatter_separator_custom_tag' => 'span',
         'textformatter_separator_custom_class' => 'textformatter-separator',
+        'textformatter_contrib' => array(),
       ),
     ),
   );
@@ -176,7 +177,12 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
     );
   }
 
-  drupal_alter('textformatter_field_formatter_settings_form', $form, $form_state);
+  $context = array(
+    'field' => $field,
+    'instance' => $instance,
+    'view_mode' => $view_mode
+  );
+  drupal_alter('textformatter_field_formatter_settings_form', $form, $form_state, $context);
 
   return $form;
 }

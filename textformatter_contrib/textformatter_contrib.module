@@ -1,15 +1,24 @@
 <?php
 
 /**
- * Implements hook+textformatter_field_info().
+ * Implements hook_textformatter_field_info().
  */
 function textformatter_contrib_textformatter_field_info() {
   $info = array();
 
-  $info['entityreference'] = array(
-    'fields' => array('entityreference'),
-    'callback' => 'textformatter_contrib_entityreference_field_create_list',
-  );
+  if (module_exists('entityreference')) {
+    $info['entityreference'] = array(
+      'fields' => array('entityreference'),
+      'callback' => 'textformatter_contrib_entityreference_field_create_list',
+    );
+  }
+
+  if (module_exists('link')) {
+    $info['link'] = array(
+      'fields' => array('link_field'),
+      'callback' => 'textformatter_contrib_link_field_create_list',
+    );
+  }
 
   return $info;
 }
@@ -44,7 +53,41 @@ function textformatter_contrib_entityreference_field_create_list($entity_type, $
   return $list_items;
 }
 
-function textformatter_contrib_textformatter_field_formatter_settings_form_alter(&$form, &$form_state) {
-  dpm($form);
+/**
+ * Link field listing callback.
+ */
+function textformatter_contrib_link_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $list_items = array();
+
+  foreach ($items as $delta => $item) {
+    $contrib_settings = $display['settings']['textformatter_contrib'];
+
+    $link_display = (isset($contrib_settings['link_field_display_type']) && !empty($contrib_settings['link_field_display_type']))
+      ? $contrib_settings['link_field_display_type'] : 'link_default';
+
+    $list_items[] = theme('link_formatter_'. $link_display, array('element' => $item, 'field' => $instance));
+  }
+
+  return $list_items;
 }
 
+/**
+ * Implements hook_textformatter_field_formatter_settings_form_alter().
+ */
+function textformatter_contrib_textformatter_field_formatter_settings_form_alter(&$form, &$form_state, $context) {
+  $field = $context['field'];
+
+  if ($field['type'] == 'link_field') {
+    $view_mode = $context['view_mode'];
+    $settings = $context['instance']['display'][$view_mode]['settings'];
+    $link_info = is_callable('link_field_formatter_info') ? link_field_formatter_info() : array();
+
+    $form['textformatter_contrib']['link_field_display_type'] = array(
+      '#type' => 'select',
+      '#title' => t("Link field formatting type"),
+      '#description' => t("Select the type of link field to show in the list."),
+      '#options' => drupal_map_assoc(array_keys($link_info)),
+      '#default_value' => isset($settings['textformatter_contrib']['link_field_display_type']) ? $settings['textformatter_contrib']['link_field_display_type'] : '',
+    );
+  }
+}
