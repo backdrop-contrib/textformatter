@@ -176,6 +176,8 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
     );
   }
 
+  drupal_alter('textformatter_field_formatter_settings_form', $form, $form_state);
+
   return $form;
 }
 
@@ -235,11 +237,10 @@ function textformatter_field_formatter_settings_summary($field, $instance, $view
  */
 function textformatter_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   if ($display['type'] == 'textformatter_list') {
-    $settings = $display['settings'];
-    $element = array();
     $textformatters = textformatter_field_list_info();
+    $settings = $display['settings'];
     $module = $field['module'];
-    $list_items = array();
+    $element = $list_items = array();
 
     if (isset($textformatters[$module]) && in_array($field['type'], $textformatters[$module]['fields'])) {
       $function = $textformatters[$module]['callback'];
@@ -344,9 +345,10 @@ function theme_textformatter_comma($variables) {
  */
 function textformatter_field_list_info() {
   $info = &drupal_static(__FUNCTION__);
+
   if (empty($info)) {
-    $info = module_invoke_all('textformatter_field_list_info');
-    drupal_alter('textformatter_field_list_info', $info);
+    $info = module_invoke_all('textformatter_field_info');
+    drupal_alter('textformatter_field_info', $info);
   }
 
   return $info;
@@ -355,7 +357,7 @@ function textformatter_field_list_info() {
 /**
  * Implements hook_textformatter_field_info().
  */
-function textformatter_textformatter_field_list_info() {
+function textformatter_textformatter_field_info() {
   $info = array();
 
   $info['text'] = array(

@@ -5,7 +5,7 @@
  *
  * Declare new field types/callbacks that are available as text formatter lists.
  */
-function hook_textformatter_field_list_info() {
+function hook_textformatter_field_info() {
   $info = array();
 
   $info['example'] = array( // key array with module name.
@@ -38,7 +38,14 @@ function textformatter_example_field_create_list($entity_type, $entity, $field, 
  *  An array of info as declared by hook_textformatter_field_list_info() to alter
  *  passed by reference.
  */
-function hook_textformatter_field_list_info_alter(&$info) {
+function hook_textformatter_field_info_alter(&$info) {
   // Change the callback used for fields from the text module.
   $info['text']['callback'] = 'textformatter_example_text_callback';
+}
+
+/**
+ * hook_textformatter_field_formatter_settings_form_alter().
+ */
+function textformatter_contrib_textformatter_field_formatter_settings_form_alter(&$form, &$form_state) {
+  // Sample form element here.
 }

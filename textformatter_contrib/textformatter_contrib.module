@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * Implements hook+textformatter_field_info().
+ */
+function textformatter_contrib_textformatter_field_info() {
+  $info = array();
+
+  $info['entityreference'] = array(
+    'fields' => array('entityreference'),
+    'callback' => 'textformatter_contrib_entityreference_field_create_list',
+  );
+
+  return $info;
+}
+
+/**
+ * Entity reference field listing callback.
+ */
+function textformatter_contrib_entityreference_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $entity_type = $field['settings']['target_type'];
+  $list_items = $target_ids = array();
+
+  // Get an array of entity ids.
+  foreach ($items as $delta => $item) {
+    $target_ids[] = $item['target_id'];
+  }
+
+  // Load them all.
+  if ($target_ids) {
+    $target_entities = entity_load($entity_type, $target_ids);
+  }
+
+  // Create a list item for each entity.
+  foreach ($target_entities as $id => $entity) {
+    // Only add entities to the list that the user will have access to.
+    if (isset($item['target_id']) && entity_access('view', $entity_type, $entity)) {
+      $label = entity_label($entity_type, $entity);
+      $uri = entity_uri($entity_type, $entity);
+      $list_items[$id] = l($label, $uri['path']);
+    }
+  }
+
+  return $list_items;
+}
+
+function textformatter_contrib_textformatter_field_formatter_settings_form_alter(&$form, &$form_state) {
+  dpm($form);
+}
+

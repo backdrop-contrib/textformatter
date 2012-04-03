@@ -1,6 +1,6 @@
-name = Field Text Formatter
+name = Text formatter
 description = "A field formatter for rendering values as HTML or comma-separated lists."
-package = Fields
 core = 7.x
+package = Fields
 
 dependencies[] = field
