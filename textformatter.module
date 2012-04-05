@@ -324,8 +324,10 @@ function theme_textformatter_comma($variables) {
   if ($settings['textformatter_comma_override']) {
     $sep = check_plain($settings['textformatter_separator_custom']);
     $tag = $settings['textformatter_separator_custom_tag'];
-    $class = $settings['textformatter_separator_custom_class'];
-    $separator = "<$tag class=\"$class\">$sep</$tag>";
+    if ($tag) {
+      $class = $settings['textformatter_separator_custom_class'];
+      $separator = "<$tag class=\"$class\">$sep</$tag>";
+    }
   }
   // Generate a comma-separated list.
   $output = implode($separator, $items) . $last;
