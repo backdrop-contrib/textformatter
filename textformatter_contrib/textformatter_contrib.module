@@ -27,7 +27,8 @@ function textformatter_contrib_textformatter_field_info() {
  * Entity reference field listing callback.
  */
 function textformatter_contrib_entityreference_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-  $entity_type = $field['settings']['target_type'];
+  // Load the target type for the field instance.
+  $target_type = $field['settings']['target_type'];
   $list_items = $target_ids = array();
 
   // Get an array of entity ids.
@@ -37,15 +38,15 @@ function textformatter_contrib_entityreference_field_create_list($entity_type, $
 
   // Load them all.
   if ($target_ids) {
-    $target_entities = entity_load($entity_type, $target_ids);
+    $target_entities = entity_load($target_type, $target_ids);
   }
 
   // Create a list item for each entity.
   foreach ($target_entities as $id => $entity) {
     // Only add entities to the list that the user will have access to.
-    if (isset($item['target_id']) && entity_access('view', $entity_type, $entity)) {
-      $label = entity_label($entity_type, $entity);
-      $uri = entity_uri($entity_type, $entity);
+    if (isset($item['target_id']) && entity_access('view', $target_type, $entity)) {
+      $label = entity_label($target_type, $entity);
+      $uri = entity_uri($target_type, $entity);
       $list_items[$id] = l($label, $uri['path']);
     }
   }
