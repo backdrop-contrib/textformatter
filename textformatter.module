@@ -500,7 +500,7 @@ function _textformatter_field_types() {
  *  (string) value key for the field.
  */
 function _textformatter_get_field_value_key(array $field) {
-  return (isset($field['columns']) && is_array($field['columns'])) ? key($field['columns']) : 'value';
+  return (array_key_exists('columns', $field) && is_array($field['columns'])) ? key($field['columns']) : 'value';
 }
 
 /**

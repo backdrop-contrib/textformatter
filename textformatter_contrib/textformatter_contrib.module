@@ -85,8 +85,8 @@ function textformatter_contrib_textformatter_field_formatter_settings_form_alter
 
     $form['textformatter_contrib']['link_field_display_type'] = array(
       '#type' => 'select',
-      '#title' => t("Link field formatting type"),
-      '#description' => t("Select the type of link field to show in the list."),
+      '#title' => t('Link field formatting type'),
+      '#description' => t('Select the type of link field to show in the list.'),
       '#options' => drupal_map_assoc(array_keys($link_info)),
       '#default_value' => isset($settings['textformatter_contrib']['link_field_display_type']) ? $settings['textformatter_contrib']['link_field_display_type'] : '',
     );
