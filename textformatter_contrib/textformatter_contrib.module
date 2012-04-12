@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Textformatter support for contributed module fields.
+ */
+
+/**
  * Implements hook_textformatter_field_info().
  */
 function textformatter_contrib_textformatter_field_info() {
@@ -110,7 +115,7 @@ function textformatter_contrib_link_field_create_list($entity_type, $entity, $fi
     $link_display = (isset($contrib_settings['link_field_display_type']) && !empty($contrib_settings['link_field_display_type']))
       ? $contrib_settings['link_field_display_type'] : 'link_default';
 
-    $list_items[] = theme('link_formatter_'. $link_display, array('element' => $item, 'field' => $instance));
+    $list_items[] = theme('link_formatter_' . $link_display, array('element' => $item, 'field' => $instance));
   }
 
   return $list_items;
