@@ -61,7 +61,9 @@ function textformatter_contrib_entityreference_field_create_list($entity_type, $
       $label = entity_label($target_type, $entity);
       if ($contrib_settings['entityreference_link']) {
         $uri = entity_uri($target_type, $entity);
-        $list_items[$id] = l($label, $uri['path']);
+        $target_type_class = drupal_html_class($target_type);
+        $classes = array($target_type_class, $target_type_class . '-' . $id, 'entityreference');
+        $list_items[$id] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
       }
       else {
         $list_items[$id] = field_filter_xss($label);
@@ -93,10 +95,11 @@ function textformatter_contrib_node_reference_field_create_list($entity_type, $e
     $label = entity_label('node', $node);
     $uri = entity_uri('node', $node);
     if ($contrib_settings['node_reference_link']) {
-      $list_items[$id] = l($label, $uri['path']);
+      $classes = array('node', 'node-' . $id, 'node-' . drupal_html_class($node->type), 'node-reference');
+      $list_items[$id] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
     }
     else {
-      $list_items[] = field_filter_xss($label);
+      $list_items[$id] = field_filter_xss($label);
     }
   }
 
