@@ -453,19 +453,22 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
   $list_items = array();
 
   $tids = array();
+
   foreach ($items as $item) { 
     $tids[] = $item['tid']; 
   }
+
   $terms = taxonomy_term_load_multiple($tids);
 
   foreach ($items as $delta => $item) {
+    $term_name = ($item['tid'] === 'autocreate') ? $item['name'] : $terms[$item['tid']]->name;
     // Check if we should display as term links or not.
-    if ($settings['textformatter_term_plain']) {
-      $list_items[$delta] = check_plain($terms[$item['tid']]->name);
+    if ($settings['textformatter_term_plain'] || ($item['tid'] === 'autocreate')) {
+      $list_items[$delta] = check_plain($term_name);
     }
     else {
       $uri = entity_uri('taxonomy_term', $terms[$item['tid']]);
-      $list_items[$delta] = l($terms[$item['tid']]->name, $uri['path']);
+      $list_items[$delta] = l($term_name, $uri['path']);
     }
   }
 
