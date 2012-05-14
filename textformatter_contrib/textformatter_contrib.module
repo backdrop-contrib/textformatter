@@ -87,19 +87,19 @@ function textformatter_contrib_node_reference_field_create_list($entity_type, $e
   }
 
   // Load them all.
-  if ($node_ids) {
+  if (!empty($node_ids)) {
     $nodes = entity_load('node', $node_ids);
-  }
 
-  foreach ($nodes as $id => $node) {
-    $label = entity_label('node', $node);
-    $uri = entity_uri('node', $node);
-    if ($contrib_settings['node_reference_link']) {
-      $classes = array('node', 'node-' . $id, 'node-' . drupal_html_class($node->type), 'node-reference');
-      $list_items[$id] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
-    }
-    else {
-      $list_items[$id] = field_filter_xss($label);
+    foreach ($nodes as $id => $node) {
+      $label = entity_label('node', $node);
+      $uri = entity_uri('node', $node);
+      if ($contrib_settings['node_reference_link']) {
+        $classes = array('node', 'node-' . $id, 'node-' . drupal_html_class($node->type), 'node-reference');
+        $list_items[$id] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
+      }
+      else {
+        $list_items[$id] = field_filter_xss($label);
+      }
     }
   }
 
