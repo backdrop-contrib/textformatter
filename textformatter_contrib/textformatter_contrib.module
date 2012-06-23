@@ -15,6 +15,9 @@ function textformatter_contrib_textformatter_field_info() {
     $info['entityreference'] = array(
       'fields' => array('entityreference'),
       'callback' => 'textformatter_contrib_entityreference_field_create_list',
+      'settings' => array(
+        'entityreference_link' => TRUE,
+      ),
     );
   }
 
@@ -22,6 +25,9 @@ function textformatter_contrib_textformatter_field_info() {
     $info['node_reference'] = array(
       'fields' => array('node_reference'),
       'callback' => 'textformatter_contrib_node_reference_field_create_list',
+      'settings' => array(
+        'node_reference_link' => TRUE,
+      ),
     );
   }
 
@@ -29,6 +35,9 @@ function textformatter_contrib_textformatter_field_info() {
     $info['user_reference'] = array(
       'fields' => array('user_reference'),
       'callback' => 'textformatter_contrib_user_reference_field_create_list',
+      'settings' => array(
+        'user_reference_link' => TRUE,
+      ),
     );
   }
 
@@ -36,6 +45,9 @@ function textformatter_contrib_textformatter_field_info() {
     $info['link'] = array(
       'fields' => array('link_field'),
       'callback' => 'textformatter_contrib_link_field_create_list',
+      'settings' => array(
+        'link_field_display_type' => 'link_default',
+      ),
     );
   }
 
@@ -157,10 +169,7 @@ function textformatter_contrib_link_field_create_list($entity_type, $entity, $fi
   foreach ($items as $delta => $item) {
     $contrib_settings = $display['settings']['textformatter_contrib'];
 
-    $link_display = (isset($contrib_settings['link_field_display_type']) && !empty($contrib_settings['link_field_display_type']))
-      ? $contrib_settings['link_field_display_type'] : 'link_default';
-
-    $list_items[] = theme('link_formatter_' . $link_display, array('element' => $item, 'field' => $instance));
+    $list_items[] = theme('link_formatter_' . $contrib_settings['link_field_display_type'], array('element' => $item, 'field' => $instance));
   }
 
   return $list_items;

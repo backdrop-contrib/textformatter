@@ -31,10 +31,11 @@ function textformatter_help($path, $arg) {
  * Implements hook_field_formatter_info().
  */
 function textformatter_field_formatter_info() {
+  $textformatter_info = _textformatter_field_info();
   return array(
     'textformatter_list' => array(
       'label' => t("List"),
-      'field types' => _textformatter_field_types(),
+      'field types' => $textformatter_info['fields'],
       'settings' => array(
         'textformatter_type' => 'ul',
         'textformatter_class' => 'textformatter-list',
@@ -46,7 +47,7 @@ function textformatter_field_formatter_info() {
         'textformatter_separator_custom' => '',
         'textformatter_separator_custom_tag' => 'span',
         'textformatter_separator_custom_class' => 'textformatter-separator',
-        'textformatter_contrib' => array(),
+        'textformatter_contrib' => $textformatter_info['settings'],
       ),
     ),
   );
@@ -488,19 +489,20 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
 /**
  * Helper to return array of field types that textformatter display formatter can be used on.
  */
-function _textformatter_field_types() {
+function _textformatter_field_info() {
   // Invokes hook_textformatter_field_info
   $textformatter_info = textformatter_field_list_info();
-  $fields = array();
+  $field_info = array('fields' => array(), 'settings' => array());
 
   // Create array of all field types.
   foreach ($textformatter_info as $module => $info) {
-    foreach ($info['fields'] as $field) {
-      $fields[] = $field;
+    $field_info['fields'] = array_merge($field_info['fields'], $info['fields']);
+    if (isset($info['settings']) && is_array($info['settings'])) {
+      $field_info['settings'] = array_merge($field_info['settings'], $info['settings']);
     }
   }
 
-  return $fields;
+  return $field_info;
 }
 
 /**
