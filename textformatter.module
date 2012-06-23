@@ -487,14 +487,17 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
 }
 
 /**
- * Helper to return array of field types that textformatter display formatter can be used on.
+ * Returns an array of info to add to hook_field_formatter_info().
+ *
+ * @return array
+ *   An array of fields and settings from hook_textformatter_field_info data.
  */
 function _textformatter_field_info() {
   // Invokes hook_textformatter_field_info
   $textformatter_info = textformatter_field_list_info();
   $field_info = array('fields' => array(), 'settings' => array());
 
-  // Create array of all field types.
+  // Create array of all field types and default settings..
   foreach ($textformatter_info as $module => $info) {
     $field_info['fields'] = array_merge($field_info['fields'], $info['fields']);
     if (isset($info['settings']) && is_array($info['settings'])) {
@@ -508,11 +511,11 @@ function _textformatter_field_info() {
 /**
  * Helper to return the value key for a field instance.
  *
- * @param $field
+ * @param $field array
  *  The whole array of field instance info provided by the field api.
  *
- * @return
- *  (string) value key for the field.
+ * @return string
+ *  The value key for the field.
  */
 function _textformatter_get_field_value_key(array $field) {
   return (array_key_exists('columns', $field) && is_array($field['columns'])) ? key($field['columns']) : 'value';
@@ -521,8 +524,8 @@ function _textformatter_get_field_value_key(array $field) {
 /**
  * Helper to return an array of html tags, formatted for a select list.
  *
- * @return
- *   Array of available html tags.
+ * @return array
+ *   A keyed array of available html tags.
  */
 function _textformatter_wrapper_options() {
   return array(
