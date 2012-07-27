@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Describes hooks provided by the textformatter module.
+ */
+
+/**
  * hook_textformatter_field_list_info().
  *
  * Declare new field types/callbacks that are available as text formatter lists.
