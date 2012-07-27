@@ -11,15 +11,15 @@
 function textformatter_help($path, $arg) {
   switch ($path) {
     case 'admin/help#textformatter' :
-      $output =  '<p>' . t("The text formatter module provides a new display formatter that can 
-        be used on any text, number, list, or taxonomy fields.") . '</p>'; 
-      $output .= '<p>' . t("Go to 'Manage display' for your entity field display settings and 
-        select 'List' as the formatter. Various options will then be available to either format 
+      $output =  '<p>' . t("The text formatter module provides a new display formatter that can
+        be used on any text, number, list, or taxonomy fields.") . '</p>';
+      $output .= '<p>' . t("Go to 'Manage display' for your entity field display settings and
+        select 'List' as the formatter. Various options will then be available to either format
         your field values as an html list or comma separated list.") . '</p>';
-      $output .= '<p>' . t("This would be mostly implemented with multi value fields. 
-        E.g. A text field could be created with unlimited values. Each value will then be added to 
-        the same html list. Taxonomy terms will work with comma separated auto complete lists too, 
-        to give the same result. The only exceptions are textarea field, lists can be created based 
+      $output .= '<p>' . t("This would be mostly implemented with multi value fields.
+        E.g. A text field could be created with unlimited values. Each value will then be added to
+        the same html list. Taxonomy terms will work with comma separated auto complete lists too,
+        to give the same result. The only exceptions are textarea field, lists can be created based
         on each line of the input.") . '</p>';
 
     return $output;
@@ -111,8 +111,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
     $form['textformatter_separator_custom'] = array(
       '#type' => 'textfield',
       '#title' => t("Custom separator"),
-      '#description' => t("Override default comma separator with a custom separator string. 
-        You must add your own spaces in this string if you want them. E.g. ' + ', or ' => '"),
+      '#description' => t("Override default comma separator with a custom separator string. You must add your own spaces in this string if you want them. @example", array('@example' => "E.g. ' + ', or ' => '")),
       '#size' => 40,
       '#default_value' => $settings['textformatter_separator_custom'],
       '#states' => array(
@@ -168,7 +167,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#element_validate' => array('_textformatter_validate_class'),
     );
   }
-  
+
   // Taxonomy term ref fields only.
   if ($field['type'] == 'taxonomy_term_reference') {
     $form['textformatter_term_plain'] = array(
@@ -324,7 +323,7 @@ function theme_textformatter_comma($variables) {
   if ($settings['textformatter_comma_and'] && (count($items) > 1) && !$settings['textformatter_comma_override']) {
     $last = ' ' . t('and') . ' ' . array_pop($items);
   }
-  
+
   // Default comma separator.
   $separator = ', ';
   //Override if we need to.
@@ -464,8 +463,8 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
   $list_items = $tids = array();
 
   // Get an array of tids only.
-  foreach ($items as $item) { 
-    $tids[] = $item['tid']; 
+  foreach ($items as $item) {
+    $tids[] = $item['tid'];
   }
 
   $terms = taxonomy_term_load_multiple($tids);

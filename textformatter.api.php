@@ -35,7 +35,7 @@ function hook_textformatter_field_info() {
 
 /**
  * Sample callback implementation.
- * @see textformatter_default_field_create_list.
+ * @see textformatter_default_field_create_list()
  */
 function textformatter_example_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $list_items = array();
