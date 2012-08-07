@@ -430,7 +430,7 @@ function textformatter_text_field_create_list($entity_type, $entity, $field, $in
   }
   else {
     foreach ($items as $delta => $item) {
-      $list_items[] = ($item['format'] ? check_markup($item['value'], $item['format'], $langcode) : field_filter_xss($item['value']));
+      $list_items[] = ($instance['settings']['text_processing'] ? check_markup($item['value'], $item['format'], $langcode) : field_filter_xss($item['value']));
     }
   }
 
