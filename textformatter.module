@@ -470,6 +470,11 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
   $terms = taxonomy_term_load_multiple($tids);
 
   foreach ($items as $delta => $item) {
+    // Check the term for this item has actually been loaded.
+    // @see http://drupal.org/node/1281114
+    if (empty($terms[$item['tid']])) {
+      continue;
+    }
     // Use the item name if autocreating, as there won't be a term object yet.
     $term_name = ($item['tid'] === 'autocreate') ? $item['name'] : $terms[$item['tid']]->name;
     // Check if we should display as term links or not.
