@@ -51,6 +51,16 @@ function textformatter_contrib_textformatter_field_info() {
     );
   }
 
+  if (module_exists('field_collection')) {
+    $info['field_collection'] = array(
+      'fields' => array('field_collection'),
+      'callback' => 'textformatter_contrib_field_collection_field_create_list',
+      'settings' => array(
+        'field_collection_view_mode' => 'full',
+      ),
+    );
+  }
+
   return $info;
 }
 
@@ -176,6 +186,23 @@ function textformatter_contrib_link_field_create_list($entity_type, $entity, $fi
 }
 
 /**
+ * Field collection field listing callback.
+ */
+function textformatter_contrib_field_collection_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $contrib_settings = $display['settings']['textformatter_contrib'];
+  $list_items = array();
+
+  $view_mode = !empty($contrib_settings['field_collection_view_mode']) ? $contrib_settings['field_collection_view_mode'] : 'full';
+  foreach ($items as $delta => $item) {
+    if ($field_collection = field_collection_field_get_entity($item)) {
+      $list_items[$delta] = drupal_render($field_collection->view($view_mode));
+    }
+  }
+
+  return $list_items;
+}
+
+/**
  * Implements hook_textformatter_field_formatter_settings_form_alter().
  */
 function textformatter_contrib_textformatter_field_formatter_settings_form_alter(&$form, &$form_state, $context) {
@@ -220,4 +247,21 @@ function textformatter_contrib_textformatter_field_formatter_settings_form_alter
       '#default_value' => isset($settings['textformatter_contrib']['link_field_display_type']) ? $settings['textformatter_contrib']['link_field_display_type'] : 'link_default',
     );
   }
+
+  if ($field['type'] == 'field_collection') {
+    $entity_type = entity_get_info('field_collection_item');
+    $options = array();
+    foreach ($entity_type['view modes'] as $mode => $info) {
+      $options[$mode] = $info['label'];
+    }
+
+    $form['textformatter_contrib']['field_collection_view_mode'] = array(
+      '#type' => 'select',
+      '#title' => t('View mode'),
+      '#options' => $options,
+      '#default_value' => isset($settings['textformatter_contrib']['field_collection_view_mode']) ? $settings['textformatter_contrib']['field_collection_view_mode'] : 'full',
+      '#description' => t('Select the view mode'),
+    );
+  }
+
 }
