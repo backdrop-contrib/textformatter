@@ -195,7 +195,8 @@ function textformatter_contrib_field_collection_field_create_list($entity_type, 
   $view_mode = !empty($contrib_settings['field_collection_view_mode']) ? $contrib_settings['field_collection_view_mode'] : 'full';
   foreach ($items as $delta => $item) {
     if ($field_collection = field_collection_field_get_entity($item)) {
-      $list_items[$delta] = drupal_render($field_collection->view($view_mode));
+      $content = $field_collection->view($view_mode);
+      $list_items[$delta] = drupal_render($content);
     }
   }
 
