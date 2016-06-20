@@ -22,7 +22,7 @@ are supported.
 There is no special configuration for this module.  You may configure it just as
 you would any other field formatter on the "Manage display" tab.
 
-![Text Formatter](images/textformatter.jpg "Text Formatter Display Settings")
+![Text Formatter](https://github.com/backdrop-contrib/textformatter/blob/1.x-1.x/images/textformatter.jpg "Text Formatter Display Settings")
 
 ##Issues
 
@@ -44,5 +44,5 @@ https://github.com/backdrop-contrib/textformatter/issues
 
 ##License
 
-This project is GPL v2 software. See the [LICENSE.txt](LICENSE.txt) file in 
+This project is GPL v2 software. See the [LICENSE.txt](https://github.com/backdrop-contrib/textformatter/blob/1.x-1.x/LICENSE.txt) file in 
 this directory for complete text.
