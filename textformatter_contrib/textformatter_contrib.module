@@ -90,7 +90,7 @@ function textformatter_contrib_entityreference_field_create_list($entity_type, $
       $label = entity_label($target_type, $entity);
       if ($contrib_settings['entityreference_link']) {
         $uri = entity_uri($target_type, $entity);
-        $target_type_class = drupal_html_class($target_type);
+        $target_type_class = backdrop_html_class($target_type);
         $classes = array($target_type_class, $target_type_class . '-' . $id, 'entityreference');
         $list_items[$id] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
       }
@@ -123,7 +123,7 @@ function textformatter_contrib_node_reference_field_create_list($entity_type, $e
       $label = entity_label('node', $node);
       $uri = entity_uri('node', $node);
       if ($contrib_settings['node_reference_link']) {
-        $classes = array('node', 'node-' . $id, 'node-' . drupal_html_class($node->type), 'node-reference');
+        $classes = array('node', 'node-' . $id, 'node-' . backdrop_html_class($node->type), 'node-reference');
         $list_items[$id] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
       }
       else {
@@ -196,7 +196,7 @@ function textformatter_contrib_field_collection_field_create_list($entity_type, 
   foreach ($items as $delta => $item) {
     if ($field_collection = field_collection_field_get_entity($item)) {
       $content = $field_collection->view($view_mode);
-      $list_items[$delta] = drupal_render($content);
+      $list_items[$delta] = backdrop_render($content);
     }
   }
 
@@ -244,7 +244,7 @@ function textformatter_contrib_textformatter_field_formatter_settings_form_alter
       '#type' => 'select',
       '#title' => t('Link field formatting type'),
       '#description' => t('Select the type of link field to show in the list.'),
-      '#options' => drupal_map_assoc(array_keys($link_info)),
+      '#options' => backdrop_map_assoc(array_keys($link_info)),
       '#default_value' => isset($settings['textformatter_contrib']['link_field_display_type']) ? $settings['textformatter_contrib']['link_field_display_type'] : 'link_default',
     );
   }

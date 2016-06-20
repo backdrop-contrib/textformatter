@@ -182,7 +182,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
     'instance' => $instance,
     'view_mode' => $view_mode
   );
-  drupal_alter('textformatter_field_formatter_settings_form', $form, $form_state, $context);
+  backdrop_alter('textformatter_field_formatter_settings_form', $form, $form_state, $context);
 
   return $form;
 }
@@ -194,10 +194,10 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
  * @see textformatter_field_formatter_settings_form()
  */
 function _textformatter_validate_class($element, &$form_state) {
-  $value = drupal_array_get_nested_value($form_state['values'], $element['#parents']);
+  $value = backdrop_array_get_nested_value($form_state['values'], $element['#parents']);
   $classes = explode(' ', $value);
   foreach ($classes as $class) {
-    if ($class != drupal_html_class($class)) {
+    if ($class != backdrop_html_class($class)) {
       form_error($element, t('List classes contain illegal characters; classes should be lowercase and may contain letters, numbers, and dashes.'));
       return;
     }
@@ -265,7 +265,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
       return;
     }
 
-    // CSS classes are checked for validity on submission. drupal_attributes()
+    // CSS classes are checked for validity on submission. backdrop_attributes()
     // runs each attribute value through check_plain().
     $classes = explode(' ', $settings['textformatter_class']);
 
@@ -316,7 +316,7 @@ function textformatter_theme($existing, $type, $theme, $path) {
 function theme_textformatter_comma($variables) {
   $items = $variables['items'];
   $settings = $variables['settings'];
-  $attributes = drupal_attributes($variables['attributes']);
+  $attributes = backdrop_attributes($variables['attributes']);
 
   // Optionally prefix the last item with 'and'.
   $last = '';
@@ -359,11 +359,11 @@ function theme_textformatter_comma($variables) {
  * for different fields using this formatter in a request.
  */
 function textformatter_field_list_info() {
-  $info = &drupal_static(__FUNCTION__);
+  $info = &backdrop_static(__FUNCTION__);
 
   if (empty($info)) {
     $info = module_invoke_all('textformatter_field_info');
-    drupal_alter('textformatter_field_info', $info);
+    backdrop_alter('textformatter_field_info', $info);
   }
 
   return $info;

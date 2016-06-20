@@ -1,6 +1,7 @@
 name = Text formatter contrib
 description = "Textformatter support for contributed modules."
-core = 7.x
+backdrop = 1.x
+type = module
 package = Fields
 
 dependencies[] = textformatter

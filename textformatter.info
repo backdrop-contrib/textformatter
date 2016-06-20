@@ -1,6 +1,7 @@
 name = Text formatter
 description = "A field formatter for rendering values as HTML or comma-separated lists."
-core = 7.x
+backdrop = 1.x
+type = module
 package = Fields
 
 dependencies[] = field
