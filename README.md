@@ -37,7 +37,8 @@ https://github.com/backdrop-contrib/textformatter/issues
 
 - Ported to Backdrop CMS by Laryn Kragt Bakker - CEDC.org 
   (https://github.com/laryn/).
-- Initiated and maintained for Drupal 7 by Damian Lee (https://github.com/).
+- Initiated and maintained for Drupal 7 by Damian Lee 
+  (https://github.com/damiankloip).
 - Originally developed for Drupal 6 by Larry Garfield & Emily Brand 
   (Palantir.net).
 
