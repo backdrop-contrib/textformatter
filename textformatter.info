@@ -1,4 +1,4 @@
-name = Text formatter
+name = Text Formatter
 description = "A field formatter for rendering values as HTML or comma-separated lists."
 backdrop = 1.x
 type = module
