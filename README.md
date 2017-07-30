@@ -1,4 +1,4 @@
-#Text Formatter
+# Text Formatter
 
 This module provides an additional formatter to render values in all
 core fields as HTML or comma-separated lists.
@@ -12,28 +12,28 @@ textformatter_contrib module provides some implementations. This is bundled
 with this module. Currently entityreference, node reference, and link fields
 are supported.
 
-##Installation
+## Installation
 
 - Install this module using the official 
   [Backdrop CMS instructions](https://backdropcms.org/guide/modules)
 
-##Configuration
+## Configuration
 
 There is no special configuration for this module.  You may configure it just as
 you would any other field formatter on the "Manage display" tab.
 
 ![Text Formatter](https://github.com/backdrop-contrib/textformatter/blob/1.x-1.x/images/textformatter.jpg "Text Formatter Display Settings")
 
-##Issues
+## Issues
 
 Bugs and Feature requests should be reported in the 
 [Issue Queue](https://github.com/backdrop-contrib/textformatter/issues)
 
-##Current Maintainers
+## Current Maintainers
 
 - [Laryn Kragt Bakker](https://github.com/laryn) - [CEDC.org](https://cedc.org)
 
-##Credits
+## Credits
 
 - Ported to Backdrop CMS by [Laryn Kragt Bakker](https://github.com/laryn) - 
   [CEDC.org](https://cedc.org).
@@ -42,7 +42,7 @@ Bugs and Feature requests should be reported in the
 - Originally developed for Drupal 6 by Larry Garfield & Emily Brand 
   (Palantir.net).
 
-##License
+## License
 
 This project is GPL v2 software. See the 
 [LICENSE.txt](https://github.com/backdrop-contrib/textformatter/blob/1.x-1.x/LICENSE.txt) 
