@@ -6,28 +6,6 @@
  */
 
 /**
- * Implements hook_help().
- */
-function textformatter_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#textformatter' :
-      $output =  '<p>' . t("The text formatter module provides a new display formatter that can
-        be used on any text, number, list, or taxonomy fields.") . '</p>';
-      $output .= '<p>' . t("Go to 'Manage display' for your entity field display settings and
-        select 'List' as the formatter. Various options will then be available to either format
-        your field values as an html list or comma separated list.") . '</p>';
-      $output .= '<p>' . t("This would be mostly implemented with multi value fields.
-        E.g. A text field could be created with unlimited values. Each value will then be added to
-        the same html list. Taxonomy terms will work with comma separated auto complete lists too,
-        to give the same result. The only exceptions are textarea field, lists can be created based
-        on each line of the input.") . '</p>';
-
-    return $output;
-  }
-
-}
-
-/**
  * Implements hook_field_formatter_info().
  */
 function textformatter_field_formatter_info() {
