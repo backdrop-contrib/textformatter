@@ -15,7 +15,7 @@ function textformatter_field_formatter_info() {
       'label' => t("List"),
       'field types' => $textformatter_info['fields'],
       'settings' => array(
-        'textformatter_type' => 'ul',
+        'textformatter_type' => 'comma',
         'textformatter_sort' => 'alpha',
         'textformatter_class' => 'textformatter-list',
         'textformatter_comma_full_stop' => 0,
@@ -45,17 +45,17 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#title' => t("List type"),
       '#type' => 'select',
       '#options' => array(
+        'comma' => t("Comma separated list"),
         'ul' => t("Unordered HTML list (ul)"),
         'ol' => t("Ordered HTML list (ol)"),
-        'comma' => t("Comma separated list"),
       ),
-      '#default_value' => $settings['textformatter_type'],
+      '#default_value' => (!empty($settings['textformatter_type'])) ? $settings['textformatter_type'] : 'comma',
       '#required' => TRUE,
     );
     $form['textformatter_comma_and'] = array(
       '#type' => 'checkbox',
       '#title' => t("Include 'and' before the last item"),
-      '#default_value' => $settings['textformatter_comma_and'],
+      '#default_value' => (!empty($settings['textformatter_comma_and'])) ? $settings['textformatter_comma_and'] : '',
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
@@ -66,7 +66,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
     $form['textformatter_comma_full_stop'] = array(
       '#type' => 'checkbox',
       '#title' => t("Append comma separated list with '.'"),
-      '#default_value' => $settings['textformatter_comma_full_stop'],
+      '#default_value' => (!empty($settings['textformatter_comma_full_stop'])) ? $settings['textformatter_comma_full_stop'] : '',
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
@@ -80,7 +80,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#type' => 'checkbox',
       '#title' => t("Override comma separator"),
       '#description' => t("Override the default comma separator with a custom separator string."),
-      '#default_value' => $settings['textformatter_comma_override'],
+      '#default_value' => (!empty($settings['textformatter_comma_override'])) ? $settings['textformatter_comma_override'] : '',
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
@@ -92,7 +92,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#title' => t("Custom separator"),
       '#description' => t("Override default comma separator with a custom separator string. You must add your own spaces in this string if you want them. @example", array('@example' => "E.g. ' + ', or ' => '")),
       '#size' => 40,
-      '#default_value' => $settings['textformatter_separator_custom'],
+      '#default_value' => (!empty($settings['textformatter_separator_custom'])) ? $settings['textformatter_separator_custom'] : '',
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => TRUE),
@@ -104,7 +104,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#title' => t("separator HTML wrapper"),
       '#description' => t("An HTML tag to wrap the separator in."),
       '#options' => _textformatter_wrapper_options(),
-      '#default_value' => $settings['textformatter_separator_custom_tag'],
+      '#default_value' => (!empty($settings['textformatter_separator_custom_tag'])) ? $settings['textformatter_separator_custom_tag'] : '',
       '#states' => array(
         'visible' => array(
           ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_comma_override]"]' => array('checked' => TRUE),
@@ -115,7 +115,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#title' => t("Separator classes"),
       '#type' => 'textfield',
       '#description' => t("A CSS class to use in the wrapper tag for the separator."),
-      '#default_value' => $settings['textformatter_separator_custom_class'],
+      '#default_value' => (!empty($settings['textformatter_separator_custom_class'])) ? $settings['textformatter_separator_custom_class'] : '',
       '#element_validate' => array('_textformatter_validate_class'),
       '#states' => array(
         'visible' => array(
@@ -129,10 +129,10 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#title' => t("HTML wrapper"),
       '#description' => t("An HTML tag to wrap the list in. The CSS class below will be added to this tag."),
       '#options' => _textformatter_wrapper_options(),
-      '#default_value' => $settings['textformatter_comma_tag'],
+      '#default_value' => (!empty($settings['textformatter_comma_tag'])) ? $settings['textformatter_comma_tag'] : '',
       '#states' => array(
         'visible' => array(
-          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => 'comma'),
+          ':input[name="fields[' . $field['field_name'] . '][settings_edit_form][settings][textformatter_type]"]' => array('value' => ''),
         ),
       ),
     );
@@ -141,7 +141,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#type' => 'textfield',
       '#size' => 40,
       '#description' => t("A CSS class to use in the markup for the field list."),
-      '#default_value' => $settings['textformatter_class'],
+      '#default_value' => (!empty($settings['textformatter_class'])) ? $settings['textformatter_class'] : '',
       '#required' => FALSE,
       '#element_validate' => array('_textformatter_validate_class'),
     );
@@ -153,7 +153,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
         'alpha' => t("Alphabetical"),
         'rev_alpha' => t("Reverse alphabetical"),
       ),
-      '#default_value' => $settings['textformatter_sort'],
+      '#default_value' => (!empty($settings['textformatter_sort'])) ? $settings['textformatter_sort'] : 'default',
       '#required' => TRUE,
     );
   }
@@ -163,7 +163,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
     $form['textformatter_term_plain'] = array(
       '#type' => 'checkbox',
       '#title' => t("Display taxonomy terms as plain text (Not term links)."),
-      '#default_value' => $settings['textformatter_term_plain'],
+      '#default_value' => (!empty($settings['textformatter_term_plain'])) ? $settings['textformatter_term_plain'] : '',
     );
     //Adjust the sort in case of taxonomy term ref field and reset default sort to 
     //account for new option
