@@ -535,8 +535,7 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
       continue;
     }
     // Use the item name if autocreating, as there won't be a term object yet.
-    $term_name = ($item['tid'] === 'autocreate') ? $item['name'] : $terms[$item['tid']]->name;
-    $term_name = check_plain($term_name);
+    $term_name = ($item['tid'] === 'autocreate') ? check_plain($item['name']) : $terms[$item['tid']]->name;
 
     // Check if we should display as term links or not.
     if ($settings['textformatter_term_plain'] || ($item['tid'] === 'autocreate')) {
