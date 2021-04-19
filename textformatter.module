@@ -165,8 +165,8 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#title' => t("Display taxonomy terms as plain text (Not term links)."),
       '#default_value' => (!empty($settings['textformatter_term_plain'])) ? $settings['textformatter_term_plain'] : '',
     );
-    //Adjust the sort in case of taxonomy term ref field and reset default sort to 
-    //account for new option
+    // Adjust the sort in case of taxonomy term ref field and reset default
+    // sort to account for new option
     $form['textformatter_sort']['#options']['weight'] = t("Term weight");
     $form['textformatter_sort']['#default_value'] = $settings['textformatter_sort'];
   }
@@ -273,7 +273,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
     if (empty($list_items)) {
       return;
     }
-    
+
     // Check if there is a sort required
     switch ($settings['textformatter_sort']) {
       case 'alpha':
@@ -286,7 +286,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
         }
         ksort($list_items_plain);
         break;
-      
+
       case 'rev_alpha':
         foreach ($list_items as $list_item) {
           if ($textformatters[$module]['fields'][0] == 'taxonomy_term_reference') {
@@ -297,19 +297,19 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
         }
         krsort($list_items_plain);
         break;
-        
+
       case 'weight':
         if ($textformatters[$module]['fields'][0] == 'taxonomy_term_reference') {
           foreach ($list_items as $list_item) {
             $list_items_plain[$list_item['weight']] = $list_item['display'];
           }
         } else {
-          //This should never happen since weight only applies to terms 
+          // This should never happen since weight only applies to terms.
           $list_items_plain[str_replace(' ', '', $list_item['display'])] = $list_item['display'];
         }
         ksort($list_items_plain);
         break;
-        
+
       case 'default':
       default:
         if ($textformatters[$module]['fields'][0] == 'taxonomy_term_reference') {
@@ -320,7 +320,7 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
           $list_items_plain[] = $list_item['name'];
         }
         break;
-        
+
     }
 
 
@@ -527,6 +527,9 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
   }
 
   $terms = taxonomy_term_load_multiple($tids);
+  if (module_exists('i18n_taxonomy')) {
+    $terms = i18n_taxonomy_localize_terms($terms);
+  }
 
   foreach ($items as $delta => $item) {
     // Check the term for this item has actually been loaded.
