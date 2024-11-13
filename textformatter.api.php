@@ -41,7 +41,8 @@ function textformatter_example_field_create_list($entity_type, $entity, $field, 
   $list_items = array();
 
   foreach ($items as $delta => $item) {
-    $list_items[$delta] = check_plain($item['value']);
+    $list_items[$delta]['display'] = check_plain($item['label']);
+    $list_items[$delta]['sort'] = $item['sorting_value'];
   }
 
   return $list_items;

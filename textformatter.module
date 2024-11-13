@@ -75,7 +75,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       ),
     );
 
-    //Override Comma with custom separator.
+    // Override Comma with custom separator.
     $form['textformatter_comma_override'] = array(
       '#type' => 'checkbox',
       '#title' => t("Override comma separator"),
@@ -166,7 +166,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
       '#default_value' => (!empty($settings['textformatter_term_plain'])) ? $settings['textformatter_term_plain'] : '',
     );
     // Adjust the sort in case of taxonomy term ref field and reset default
-    // sort to account for new option
+    // sort to account for new option.
     $form['textformatter_sort']['#options']['weight'] = t("Term weight");
     $form['textformatter_sort']['#default_value'] = $settings['textformatter_sort'];
   }
@@ -174,7 +174,7 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
   $context = array(
     'field' => $field,
     'instance' => $instance,
-    'view_mode' => $view_mode
+    'view_mode' => $view_mode,
   );
   backdrop_alter('textformatter_field_formatter_settings_form', $form, $form_state, $context);
 
@@ -274,26 +274,18 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
       return;
     }
 
-    // Check if there is a sort required
+    // Check if there is a sort required.
     switch ($settings['textformatter_sort']) {
       case 'alpha':
         foreach ($list_items as $list_item) {
-          if ($textformatters[$module]['fields'][0] == 'taxonomy_term_reference') {
-            $list_items_plain[str_replace(' ', '', $list_item['name'])] = $list_item['display'];
-          } else {
-            $list_items_plain[str_replace(' ', '', $list_item['display'])] = $list_item['display'];
-          }
+          $list_items_plain[str_replace(' ', '', $list_item['sort'])] = $list_item['display'];
         }
         ksort($list_items_plain);
         break;
 
       case 'rev_alpha':
         foreach ($list_items as $list_item) {
-          if ($textformatters[$module]['fields'][0] == 'taxonomy_term_reference') {
-            $list_items_plain[str_replace(' ', '', $list_item['name'])] = $list_item['display'];
-          } else {
-            $list_items_plain[str_replace(' ', '', $list_item['display'])] = $list_item['display'];
-          }
+          $list_items_plain[str_replace(' ', '', $list_item['sort'])] = $list_item['display'];
         }
         krsort($list_items_plain);
         break;
@@ -305,24 +297,18 @@ function textformatter_field_formatter_view($entity_type, $entity, $field, $inst
           }
         } else {
           // This should never happen since weight only applies to terms.
-          $list_items_plain[str_replace(' ', '', $list_item['display'])] = $list_item['display'];
+          $list_items_plain[str_replace(' ', '', $list_item['sort'])] = $list_item['display'];
         }
         ksort($list_items_plain);
         break;
 
       case 'default':
       default:
-        if ($textformatters[$module]['fields'][0] == 'taxonomy_term_reference') {
-          foreach ($list_items as $list_item) {
-            $list_items_plain[] = $list_item['display'];
-          }
-        } else {
-          $list_items_plain[] = $list_item['name'];
+        foreach ($list_items as $list_item) {
+          $list_items_plain[] = $list_item['display'];
         }
         break;
-
     }
-
 
     // CSS classes are checked for validity on submission. backdrop_attributes()
     // runs each attribute value through check_plain().
@@ -385,7 +371,7 @@ function theme_textformatter_comma($variables) {
 
   // Default comma separator.
   $separator = ', ';
-  //Override if we need to.
+  // Override if we need to.
   if ($settings['textformatter_comma_override']) {
     $sep = check_plain($settings['textformatter_separator_custom']);
     $tag = $settings['textformatter_separator_custom_tag'];
@@ -464,7 +450,9 @@ function textformatter_default_field_create_list($entity_type, $entity, $field, 
   $value_key = _textformatter_get_field_value_key($field);
 
   foreach ($items as $delta => $item) {
-    $list_items[$delta]['display'] = check_plain($item[$value_key]);
+    $value = check_plain($item[$value_key]);
+    $list_items[$delta]['display'] = $value;
+    $list_items[$delta]['sort'] = $value;
   }
 
   return $list_items;
@@ -483,13 +471,15 @@ function textformatter_text_field_create_list($entity_type, $entity, $field, $in
       $long_text_items = array_filter(array_map('trim', explode("\n", $item['value'])));
       foreach ($long_text_items as $long_text_item) {
         // @see _text_sanitize(), text.module
-        $list_items[]['display'] = ($instance['settings']['text_processing'] ? check_markup($long_text_item, $item['format'], $langcode) : field_filter_xss($long_text_item));
+        $list_items[$delta]['display'] = ($instance['settings']['text_processing'] ? check_markup($long_text_item, $item['format'], $langcode) : field_filter_xss($long_text_item));
+        $list_items[$delta]['sort'] = strip_tags($long_text_item);
       }
     }
   }
   else {
     foreach ($items as $delta => $item) {
-      $list_items[]['display'] = ($instance['settings']['text_processing'] ? check_markup($item['value'], $item['format'], $langcode) : field_filter_xss($item['value']));
+      $list_items[$delta]['display'] = ($instance['settings']['text_processing'] ? check_markup($item['value'], $item['format'], $langcode) : field_filter_xss($item['value']));
+      $list_items[$delta]['sort'] = strip_tags($item['value']);
     }
   }
 
@@ -508,6 +498,7 @@ function textformatter_list_field_create_list($entity_type, $entity, $field, $in
   foreach ($items as $delta => $item) {
     if (isset($allowed_values[$item['value']])) {
       $list_items[$delta]['display'] = field_filter_xss($allowed_values[$item['value']]);
+      $list_items[$delta]['sort'] = $allowed_values[$item['value']];
     }
   }
 
@@ -548,9 +539,9 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
       $uri = entity_uri('taxonomy_term', $terms[$item['tid']]);
       $list_items[$delta]['display'] = l($term_name, $uri['path']);
     }
-    //Save some other data for potential sorting
+    // Save some other data for potential sorting.
     $list_items[$delta]['weight'] = $terms[$item['tid']]->weight;
-    $list_items[$delta]['name'] = $term_name;
+    $list_items[$delta]['sort'] = $term_name;
   }
 
   return $list_items;
@@ -563,7 +554,7 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
  *   An array of fields and settings from hook_textformatter_field_info data.
  */
 function _textformatter_field_info() {
-  // Invokes hook_textformatter_field_info
+  // Invokes hook_textformatter_field_info.
   $textformatter_info = textformatter_field_list_info();
   $field_info = array('fields' => array(), 'settings' => array());
 
@@ -581,11 +572,11 @@ function _textformatter_field_info() {
 /**
  * Helper to return the value key for a field instance.
  *
- * @param $field array
- *  The whole array of field instance info provided by the field api.
+ * @param array $field
+ *   The whole array of field instance info provided by the field api.
  *
  * @return string
- *  The value key for the field.
+ *   The value key for the field.
  */
 function _textformatter_get_field_value_key(array $field) {
   return (array_key_exists('columns', $field) && is_array($field['columns'])) ? key($field['columns']) : 'value';

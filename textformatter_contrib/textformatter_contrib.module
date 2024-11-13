@@ -92,11 +92,12 @@ function textformatter_contrib_entityreference_field_create_list($entity_type, $
         $uri = entity_uri($target_type, $entity);
         $target_type_class = backdrop_html_class($target_type);
         $classes = array($target_type_class, $target_type_class . '-' . $id, 'entityreference');
-        $list_items[$id] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
+        $list_items[$id]['display'] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
       }
       else {
-        $list_items[$id] = field_filter_xss($label);
+        $list_items[$id]['display'] = field_filter_xss($label);
       }
+      $list_items[$id]['sort'] = $label;
     }
   }
 
@@ -124,11 +125,12 @@ function textformatter_contrib_node_reference_field_create_list($entity_type, $e
       $uri = entity_uri('node', $node);
       if ($contrib_settings['node_reference_link']) {
         $classes = array('node', 'node-' . $id, 'node-' . backdrop_html_class($node->type), 'node-reference');
-        $list_items[$id] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
+        $list_items[$id]['display'] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
       }
       else {
-        $list_items[$id] = field_filter_xss($label);
+        $list_items[$id]['display'] = field_filter_xss($label);
       }
+      $list_items[$id]['sort'] = $label;
     }
   }
 
@@ -159,11 +161,12 @@ function textformatter_contrib_user_reference_field_create_list($entity_type, $e
       $uri = entity_uri('user', $user);
       if ($contrib_settings['user_reference_link']) {
         $classes = array('user', 'user-' . $id, 'user-reference');
-        $list_items[$id] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
+        $list_items[$id]['display'] = l($label, $uri['path'], array('attributes' => array('class' => $classes)));
       }
       else {
-        $list_items[$id] = field_filter_xss($label);
+        $list_items[$id]['display'] = field_filter_xss($label);
       }
+      $list_items[$id]['sort'] = $label;
     }
   }
 
@@ -179,7 +182,8 @@ function textformatter_contrib_link_field_create_list($entity_type, $entity, $fi
   foreach ($items as $delta => $item) {
     $contrib_settings = $display['settings']['textformatter_contrib'];
 
-    $list_items[] = theme('link_formatter_' . $contrib_settings['link_field_display_type'], array('element' => $item, 'field' => $instance));
+    $list_items[$delta]['display'] = theme('link_formatter_' . $contrib_settings['link_field_display_type'], array('element' => $item, 'field' => $instance));
+    $list_items[$delta]['sort'] = $item['title'];
   }
 
   return $list_items;
@@ -196,7 +200,9 @@ function textformatter_contrib_field_collection_field_create_list($entity_type, 
   foreach ($items as $delta => $item) {
     if ($field_collection = field_collection_field_get_entity($item)) {
       $content = $field_collection->view($view_mode);
-      $list_items[$delta] = backdrop_render($content);
+      $list_items[$delta]['display'] = backdrop_render($content);
+      // @todo: Is there a better generic way to handle this sorting?
+      $list_items[$delta]['sort'] = $delta;
     }
   }
 
