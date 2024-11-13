@@ -221,7 +221,7 @@ function textformatter_contrib_textformatter_field_formatter_settings_form_alter
     $form['textformatter_contrib']['entityreference_link'] = array(
       '#type' => 'checkbox',
       '#title' => t("Link list items to their @entity entity.", array('@entity' => $field['settings']['target_type'])),
-      '#description' => t("Generate item list with links to the node page"),
+      '#description' => t("Generate item list with links to the relevant page"),
       '#default_value' => isset($settings['textformatter_contrib']['entityreference_link']) ? $settings['textformatter_contrib']['entityreference_link'] : TRUE,
     );
   }
