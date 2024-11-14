@@ -26,8 +26,8 @@ function textformatter_field_formatter_info() {
         'textformatter_separator_custom' => '',
         'textformatter_separator_custom_tag' => 'span',
         'textformatter_separator_custom_class' => 'textformatter-separator',
-        'entityreference_link' => 1,
-        'link_field_display_type' => 'link_default',
+        'textformatter_entityreference_link' => 1,
+        'textformatter_link_field_display_type' => 'link_default',
         'textformatter_contrib' => $textformatter_info['settings'],
       ),
     ),
@@ -173,11 +173,11 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
     $form['textformatter_sort']['#default_value'] = $settings['textformatter_sort'];
   }
   elseif ($field['type'] == 'entityreference') {
-    $form['entityreference_link'] = array(
+    $form['textformatter_entityreference_link'] = array(
       '#type' => 'checkbox',
       '#title' => t("Link list items to their @entity entity.", array('@entity' => $field['settings']['target_type'])),
       '#description' => t("Generate item list with links to the relevant page"),
-      '#default_value' => isset($settings['entityreference_link']) ? $settings['entityreference_link'] : TRUE,
+      '#default_value' => isset($settings['textformatter_entityreference_link']) ? $settings['textformatter_entityreference_link'] : TRUE,
     );
   }
   elseif ($field['type'] == 'link_field') {
@@ -585,7 +585,7 @@ function textformatter_taxonomy_field_create_list($entity_type, $entity, $field,
 function textformatter_entityreference_field_create_list($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   // Load the target type for the field instance.
   $target_type = $field['settings']['target_type'];
-  $entityreference_link = $display['settings']['entityreference_link'];
+  $entityreference_link = $display['settings']['textformatter_entityreference_link'];
   $list_items = $target_ids = $target_entities = array();
 
   // Get an array of entity ids.

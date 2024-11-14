@@ -1,5 +1,5 @@
 name = Text formatter contrib
-description = "Textformatter support for contributed modules."
+description = "Textformatter support for contributed modules: Field Collection, Node reference, User reference."
 backdrop = 1.x
 type = module
 package = Fields
