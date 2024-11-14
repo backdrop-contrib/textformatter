@@ -182,12 +182,12 @@ function textformatter_field_formatter_settings_form($field, $instance, $view_mo
   }
   elseif ($field['type'] == 'link_field') {
     $link_info = is_callable('link_field_formatter_info') ? link_field_formatter_info() : array();
-    $form['link_field_display_type'] = array(
+    $form['textformatter_link_field_display_type'] = array(
       '#type' => 'select',
       '#title' => t('Link field formatting type'),
       '#description' => t('Select the type of link field to show in the list.'),
       '#options' => backdrop_map_assoc(array_keys($link_info)),
-      '#default_value' => isset($settings['link_field_display_type']) ? $settings['link_field_display_type'] : 'link_default',
+      '#default_value' => isset($settings['textformatter_link_field_display_type']) ? $settings['textformatter_link_field_display_type'] : 'link_default',
     );
   }
 
@@ -626,7 +626,7 @@ function textformatter_link_field_create_list($entity_type, $entity, $field, $in
   $list_items = array();
 
   foreach ($items as $delta => $item) {
-    $link_field_display_type = $display['settings']['link_field_display_type'];
+    $link_field_display_type = $display['settings']['textformatter_link_field_display_type'];
 
     $list_items[$delta]['display'] = theme('link_formatter_' . $link_field_display_type, array('element' => $item, 'field' => $instance));
     $list_items[$delta]['sort'] = $item['title'];
